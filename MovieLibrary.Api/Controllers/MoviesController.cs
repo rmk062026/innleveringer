@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using MovieLibrary.Api.Model;
 using MovieLibrary.Api.Services;
+using MovieLibrary.Api.DTOs;
 
 namespace MovieLibrary.Api.Controllers;
 
@@ -25,16 +26,26 @@ public class MoviesController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 10)
     {
+
         if (page < 1)
         {
-            return BadRequest("Page must be greater than 0.");
+            ModelState.AddModelError(
+                nameof(page),
+                "Page must be greater than 0.");
         }
 
         if (pageSize < 1 || pageSize > 100)
         {
-            return BadRequest(
+            ModelState.AddModelError(
+                nameof(pageSize),
                 "PageSize must be between 1 and 100.");
         }
+
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
 
         var movies = await _movieService.GetAllAsync(
             genre,
@@ -64,31 +75,58 @@ public class MoviesController : ControllerBase
     }
 
     // POST: api/movies
+
     [HttpPost]
-    public async Task<ActionResult<Movie>> Create(Movie movie)
+    public async Task<ActionResult<Movie>> Create(
+        [FromBody] CreateMovieRequest request)
     {
-        if (string.IsNullOrWhiteSpace(movie.Title))
+        if (string.IsNullOrWhiteSpace(request.Title))
         {
-            return BadRequest("Title is required.");
+            ModelState.AddModelError(
+                nameof(request.Title),
+                "Title cannot be empty or whitespace.");
         }
 
-        if (string.IsNullOrWhiteSpace(movie.Director))
+        if (string.IsNullOrWhiteSpace(request.Director))
         {
-            return BadRequest("Director is required.");
+            ModelState.AddModelError(
+                nameof(request.Director),
+                "Director cannot be empty or whitespace.");
         }
 
-        if (movie.ReleaseYear < 1888 ||
-            movie.ReleaseYear > DateTime.UtcNow.Year + 5)
+        if (string.IsNullOrWhiteSpace(request.Genre))
         {
-            return BadRequest("Invalid release year.");
+            ModelState.AddModelError(
+                nameof(request.Genre),
+                "Genre cannot be empty or whitespace.");
         }
+
+        if (request.ReleaseYear > DateTime.UtcNow.Year + 5)
+        {
+            ModelState.AddModelError(
+                nameof(request.ReleaseYear),
+                "Release year is too far in the future.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var movie = new Movie
+        {
+            Title = request.Title.Trim(),
+            Director = request.Director.Trim(),
+            Genre = request.Genre.Trim(),
+            ReleaseYear = request.ReleaseYear
+        };
 
         var createdMovie = await _movieService.AddAsync(movie);
 
         return CreatedAtAction(
             nameof(GetById),
             new { id = createdMovie.Id },
-            createdMovie
-        );
+            createdMovie);
     }
+
 }
