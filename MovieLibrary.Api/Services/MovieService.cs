@@ -12,7 +12,7 @@ public class MovieService
         return Task.FromResult(_movies.ToList());
     }
 
-    public Task<Movie?> GetByIDAsync(int id)
+    public Task<Movie?> GetByIdAsync(int id)
     {
         Movie? movie = _movies
             .FirstOrDefault(m => m.Id == id);
