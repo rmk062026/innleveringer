@@ -78,6 +78,9 @@ Invalid input returns HTTP 400 with validation details. Requesting an unknown mo
 
 ## Testing
 
+The API has been manually tested using a PowerShell script with 32 successful checks covering GET, POST, filtering, sorting, pagination, validation and HTTP status codes.
+An xUnit test project is included, but automated API tests have not yet been implemented.
+
 Run the automated tests:
 
 ```bash
