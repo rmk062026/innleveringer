@@ -18,12 +18,36 @@ public class MoviesController : ControllerBase
 
     // GET: api/movies
     [HttpGet]
-    public async Task<ActionResult<List<Movie>>> GetAll()
+    public async Task<ActionResult<List<Movie>>> GetAll(
+        [FromQuery] string? genre,
+        [FromQuery] int? year,
+        [FromQuery] string sortBy = "title",
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10)
     {
-        var movies = await _movieService.GetAllAsync();
+        if (page < 1)
+        {
+            return BadRequest("Page must be greater than 0.");
+        }
+
+        if (pageSize < 1 || pageSize > 100)
+        {
+            return BadRequest(
+                "PageSize must be between 1 and 100.");
+        }
+
+        var movies = await _movieService.GetAllAsync(
+            genre,
+            year,
+            sortBy,
+            page,
+            pageSize);
 
         return Ok(movies);
     }
+
+
+
 
     // GET: api/movies/1
     [HttpGet("{id:int}")]
