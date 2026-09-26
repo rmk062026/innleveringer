@@ -1,6 +1,49 @@
+
 @MovieLibrary.Api_HostAddress = http://localhost:5074
 
-GET {{MovieLibrary.Api_HostAddress}}/weatherforecast/
+### Hent alle filmer
+GET {{MovieLibrary.Api_HostAddress}}/api/movies
 Accept: application/json
 
-###
+### Hent en bestemt film
+GET {{MovieLibrary.Api_HostAddress}}/api/movies/1
+Accept: application/json
+
+### Opprett en film
+POST {{MovieLibrary.Api_HostAddress}}/api/movies
+Content-Type: application/json
+
+{
+  "title": "Interstellar",
+  "director": "Christopher Nolan",
+  "releaseYear": 2014,
+  "genre": "Sci-Fi"
+}
+
+### Filtrer etter sjanger
+GET {{MovieLibrary.Api_HostAddress}}/api/movies?genre=Sci-Fi
+Accept: application/json
+
+### Filtrer etter år
+GET {{MovieLibrary.Api_HostAddress}}/api/movies?year=2014
+Accept: application/json
+
+### Sorter etter nyeste film
+GET {{MovieLibrary.Api_HostAddress}}/api/movies?sortBy=year_desc
+Accept: application/json
+
+### Paginering
+GET {{MovieLibrary.Api_HostAddress}}/api/movies?page=1&pageSize=5
+Accept: application/json
+
+### Kombiner filtrering, sortering og paginering
+GET {{MovieLibrary.Api_HostAddress}}/api/movies?genre=Sci-Fi&sortBy=year_desc&page=1&pageSize=5
+Accept: application/json
+
+### Test ugyldig paginering (forventet 400)
+GET {{MovieLibrary.Api_HostAddress}}/api/movies?page=0
+Accept: application/json
+
+### Test ukjent film (forventet 404)
+GET {{MovieLibrary.Api_HostAddress}}/api/movies/999999
+Accept: application/json
